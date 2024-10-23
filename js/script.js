@@ -5,3 +5,4 @@ slide.init()
 console.log(slide)
 
 slide.changeSlide(5)
+// slide.changeSlide(2)
