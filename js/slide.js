@@ -5,6 +5,10 @@ export default class Slide {
         this.dist = { finalPosition: 0, startX: 0, movement: 0 }
     }
 
+    transition(active) {
+        this.slide.style.transition = active ? 'transform .3s' : ''
+    }
+
     moveSlide(distX) {
         this.dist.movePosition = distX
         this.slide.style.transform = `translate3d(${distX}px, 0, 0)`
@@ -26,12 +30,13 @@ export default class Slide {
             movetype = 'touchmove'
         }
         
-        console.log('onStart', event)
+        // console.log('onStart', event)
         this.wrapper.addEventListener(movetype, this.onMove)
+        this.transition(false)
     }
 
     onMove(event) {
-        console.log('onMove', event)
+        // console.log('onMove', event)
         const pointerPosition = (event.type === 'mousemove') 
             ? event.clientX 
             : event.changedTouches[0].clientX
@@ -45,6 +50,17 @@ export default class Slide {
 
         this.wrapper.removeEventListener(movetype, this.onMove)
         this.dist.finalPosition = this.dist.movePosition
+        this.transition(true)
+        this.changeSlideOnEnd()
+    }
+
+    changeSlideOnEnd() {
+        const movement = this.dist.movement
+        if((movement >= this.wrapper.offsetWidth * 0.3) && this.index.next !== undefined) this.activeNextSlide()
+        else if (movement <= -(this.wrapper.offsetWidth * 0.3) && this.index.prev !== undefined) this.activePrevSlide()
+        else if (this.changeSlide(this.index.active))
+        console.log(-(this.wrapper.offsetWidth * 0.25))
+        //console.log('wrapper', this.wrapper.offsetWidth)
     }
 
     addSlideEvents() {
@@ -98,12 +114,21 @@ export default class Slide {
         console.log(this.index)
     }
 
+    activePrevSlide() {
+        if (this.index.prev !== undefined) this.changeSlide(this.index.prev)
+    }
+
+    activeNextSlide() {
+        if (this.index.next !== undefined) this.changeSlide(this.index.next)
+    }
+
     //centralizar elemento
     // (innerwidth - larguraElemento) / 2
     //elementPosition + (innerwidth - larguraElemento) / 2
 
     init() {
         this.bindEvents()
+        this.transition(true)
         this.addSlideEvents()
         this.slidesConfig()
         return this
